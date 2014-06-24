@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1600</width>
-    <height>792</height>
+    <height>802</height>
    </rect>
   </property>
   <property name="contextMenuPolicy">
@@ -1348,7 +1348,7 @@
      <x>0</x>
      <y>0</y>
      <width>1600</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1362,6 +1362,11 @@
     <addaction name="separator"/>
     <addaction name="actionAdd_Model"/>
     <addaction name="actionExport_STL"/>
+    <addaction name="separator"/>
+    <addaction name="actionSlice"/>
+    <addaction name="actionPrint"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -1386,43 +1391,87 @@
     <addaction name="actionX_Ray_Vision"/>
     <addaction name="actionHide_Supports"/>
    </widget>
-   <widget class="QMenu" name="menuModelModifiers">
+   <widget class="QMenu" name="menuTools">
     <property name="title">
-     <string>Model Actions</string>
+     <string>Tools</string>
     </property>
-    <addaction name="actionDrop_To_Floor"/>
-    <addaction name="actionDuplicate"/>
-    <addaction name="actionReset_Rotation"/>
+    <widget class="QMenu" name="menuModelModifiers">
+     <property name="title">
+      <string>Model Actions</string>
+     </property>
+     <addaction name="actionDrop_To_Floor"/>
+     <addaction name="actionDuplicate"/>
+     <addaction name="actionReset_Rotation"/>
+    </widget>
+    <widget class="QMenu" name="menuModelTools">
+     <property name="title">
+      <string>Model Tools</string>
+     </property>
+     <addaction name="actionScale"/>
+     <addaction name="actionOrientate"/>
+     <addaction name="actionSpin"/>
+     <addaction name="actionMove"/>
+     <addaction name="actionSelection"/>
+    </widget>
+    <widget class="QMenu" name="menuSupport_Tools">
+     <property name="title">
+      <string>Support Tools</string>
+     </property>
+     <addaction name="Support_Add_Supports_action"/>
+     <addaction name="Support_Modify_Support_action"/>
+     <addaction name="Support_Delete_Supports_action"/>
+    </widget>
+    <addaction name="menuModelModifiers"/>
+    <addaction name="menuModelTools"/>
+    <addaction name="menuSupport_Tools"/>
    </widget>
-   <widget class="QMenu" name="menuModelTools">
+   <widget class="QMenu" name="menuSettings">
     <property name="title">
-     <string>Model Tools</string>
+     <string>Settings</string>
     </property>
-    <addaction name="actionScale"/>
-    <addaction name="actionOrientate"/>
-    <addaction name="actionSpin"/>
-    <addaction name="actionMove"/>
-    <addaction name="actionSelection"/>
+    <addaction name="actionCheck_For_Updates"/>
+    <addaction name="separator"/>
+    <addaction name="action_Materials_Catalog"/>
+    <addaction name="actionPrinter_Cycle_Settings"/>
+    <addaction name="separator"/>
+    <addaction name="actionCalibrate_Build_Table"/>
+    <addaction name="actionCalibrate_Projector"/>
    </widget>
-   <widget class="QMenu" name="menuSupport_Tools">
+   <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>Support Tools</string>
+     <string>Help</string>
     </property>
-    <addaction name="Support_Add_Supports_action"/>
-    <addaction name="Support_Modify_Support_action"/>
-    <addaction name="Support_Delete_Supports_action"/>
+    <addaction name="actionB9Creator_Terminal_Utility"/>
+    <addaction name="action_About_B9Creator"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
-   <addaction name="menuModelTools"/>
-   <addaction name="menuModelModifiers"/>
-   <addaction name="menuSupport_Tools"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuSettings"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="fileToolBar">
    <property name="windowTitle">
     <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QToolBar" name="projectToolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>64</width>
+     <height>64</height>
+    </size>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -1863,6 +1912,56 @@
     <string>Hide surrounding supports while modifying.</string>
    </property>
   </action>
+  <action name="actionSlice">
+   <property name="text">
+    <string>Slice</string>
+   </property>
+  </action>
+  <action name="actionPrint">
+   <property name="text">
+    <string>Print</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionCheck_For_Updates">
+   <property name="text">
+    <string>Check For Updates</string>
+   </property>
+  </action>
+  <action name="action_Materials_Catalog">
+   <property name="text">
+    <string>&amp;Materials Catalog...</string>
+   </property>
+  </action>
+  <action name="actionPrinter_Cycle_Settings">
+   <property name="text">
+    <string>Printer &amp;Cycle Settings...</string>
+   </property>
+  </action>
+  <action name="actionCalibrate_Build_Table">
+   <property name="text">
+    <string>Calibrate &amp;Build Table...</string>
+   </property>
+  </action>
+  <action name="actionCalibrate_Projector">
+   <property name="text">
+    <string>Calibrate &amp;Projector...</string>
+   </property>
+  </action>
+  <action name="actionB9Creator_Terminal_Utility">
+   <property name="text">
+    <string>B9Creator &amp;Terminal Utility...</string>
+   </property>
+  </action>
+  <action name="action_About_B9Creator">
+   <property name="text">
+    <string>&amp;About B9Creator</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../b9edit/b9edit.qrc"/>
@@ -2227,8 +2326,8 @@
    <slot>PushTranslations()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>717</y>
+     <x>115</x>
+     <y>744</y>
     </hint>
     <hint type="destinationlabel">
      <x>315</x>
@@ -2275,8 +2374,8 @@
    <slot>DuplicateSelection()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>269</x>
-     <y>298</y>
+     <x>267</x>
+     <y>318</y>
     </hint>
     <hint type="destinationlabel">
      <x>111</x>
@@ -2355,8 +2454,8 @@
    <slot>OnSupport_Bottom_AttachType_Changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>366</x>
-     <y>443</y>
+     <x>131</x>
+     <y>138</y>
     </hint>
     <hint type="destinationlabel">
      <x>590</x>
@@ -2371,8 +2470,8 @@
    <slot>OnSupport_Bottom_Radius_Changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>365</x>
-     <y>476</y>
+     <x>131</x>
+     <y>142</y>
     </hint>
     <hint type="destinationlabel">
      <x>361</x>
@@ -2387,8 +2486,8 @@
    <slot>OnSupport_Bottom_Length_Changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>365</x>
-     <y>510</y>
+     <x>131</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
      <x>539</x>
@@ -2403,8 +2502,8 @@
    <slot>OnSupport_Bottom_AngleFactor_Changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>348</x>
-     <y>578</y>
+     <x>131</x>
+     <y>151</y>
     </hint>
     <hint type="destinationlabel">
      <x>366</x>
@@ -2419,8 +2518,8 @@
    <slot>OnSupport_Bottom_Penetration_Changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>348</x>
-     <y>544</y>
+     <x>131</x>
+     <y>148</y>
     </hint>
     <hint type="destinationlabel">
      <x>600</x>
@@ -2515,8 +2614,8 @@
    <slot>OnModelSpinSliderChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>245</x>
-     <y>637</y>
+     <x>362</x>
+     <y>636</y>
     </hint>
     <hint type="destinationlabel">
      <x>313</x>
@@ -2531,8 +2630,8 @@
    <slot>OnModelSpinSliderReleased()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>245</x>
-     <y>637</y>
+     <x>362</x>
+     <y>636</y>
     </hint>
     <hint type="destinationlabel">
      <x>312</x>
@@ -2547,8 +2646,8 @@
    <slot>OnSupport_Top_AttachType_Changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>155</x>
-     <y>417</y>
+     <x>131</x>
+     <y>138</y>
     </hint>
     <hint type="destinationlabel">
      <x>419</x>
@@ -2563,8 +2662,8 @@
    <slot>OnSupport_Top_Radius_Changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>154</x>
-     <y>422</y>
+     <x>131</x>
+     <y>142</y>
     </hint>
     <hint type="destinationlabel">
      <x>414</x>
@@ -2579,8 +2678,8 @@
    <slot>OnSupport_Top_Length_Changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>154</x>
-     <y>426</y>
+     <x>131</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
      <x>416</x>
@@ -2595,8 +2694,8 @@
    <slot>OnSupport_Top_Penetration_Changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>137</x>
-     <y>430</y>
+     <x>131</x>
+     <y>148</y>
     </hint>
     <hint type="destinationlabel">
      <x>415</x>
@@ -2611,8 +2710,8 @@
    <slot>OnSupport_Top_AngleFactor_Changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
-     <y>433</y>
+     <x>131</x>
+     <y>151</y>
     </hint>
     <hint type="destinationlabel">
      <x>419</x>
@@ -2627,8 +2726,8 @@
    <slot>OnSupport_Mid_AttachType_Changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>155</x>
-     <y>417</y>
+     <x>131</x>
+     <y>138</y>
     </hint>
     <hint type="destinationlabel">
      <x>417</x>
@@ -2643,8 +2742,8 @@
    <slot>OnSupport_Mid_Radius_Changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>154</x>
-     <y>424</y>
+     <x>131</x>
+     <y>143</y>
     </hint>
     <hint type="destinationlabel">
      <x>418</x>
@@ -2659,8 +2758,8 @@
    <slot>MakeSelectedSupportsVertical()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>210</x>
-     <y>684</y>
+     <x>121</x>
+     <y>128</y>
     </hint>
     <hint type="destinationlabel">
      <x>411</x>
@@ -2691,8 +2790,8 @@
    <slot>ResetSupportLight()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>156</x>
-     <y>727</y>
+     <x>121</x>
+     <y>128</y>
     </hint>
     <hint type="destinationlabel">
      <x>413</x>
@@ -2707,8 +2806,8 @@
    <slot>ResetSupportMedium()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>268</x>
-     <y>727</y>
+     <x>121</x>
+     <y>128</y>
     </hint>
     <hint type="destinationlabel">
      <x>548</x>
@@ -2723,8 +2822,8 @@
    <slot>ResetSupportHeavy()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>314</x>
-     <y>724</y>
+     <x>121</x>
+     <y>128</y>
     </hint>
     <hint type="destinationlabel">
      <x>691</x>
@@ -2739,8 +2838,8 @@
    <slot>MakeSelectedSupportsStraight()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>381</x>
-     <y>684</y>
+     <x>121</x>
+     <y>128</y>
     </hint>
     <hint type="destinationlabel">
      <x>412</x>
@@ -2755,8 +2854,8 @@
    <slot>OnBasePlatePropertiesChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>157</x>
-     <y>80</y>
+     <x>101</x>
+     <y>87</y>
     </hint>
     <hint type="destinationlabel">
      <x>219</x>
@@ -2771,8 +2870,8 @@
    <slot>OnBasePlatePropertiesChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>309</x>
-     <y>134</y>
+     <x>121</x>
+     <y>117</y>
     </hint>
     <hint type="destinationlabel">
      <x>412</x>
@@ -2787,8 +2886,8 @@
    <slot>OnBasePlatePropertiesChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>354</x>
-     <y>163</y>
+     <x>121</x>
+     <y>117</y>
     </hint>
     <hint type="destinationlabel">
      <x>410</x>
@@ -2803,8 +2902,8 @@
    <slot>OnBasePlatePropertiesChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>303</x>
-     <y>197</y>
+     <x>121</x>
+     <y>117</y>
     </hint>
     <hint type="destinationlabel">
      <x>413</x>
@@ -2857,6 +2956,150 @@
     <hint type="destinationlabel">
      <x>799</x>
      <y>395</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSlice</sender>
+   <signal>triggered()</signal>
+   <receiver>B9Layout</receiver>
+   <slot>showSlice()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>799</x>
+     <y>400</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPrint</sender>
+   <signal>triggered()</signal>
+   <receiver>B9Layout</receiver>
+   <slot>showPrint()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>799</x>
+     <y>400</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCheck_For_Updates</sender>
+   <signal>triggered()</signal>
+   <receiver>B9Layout</receiver>
+   <slot>CheckForUpdates()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>799</x>
+     <y>400</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Materials_Catalog</sender>
+   <signal>triggered()</signal>
+   <receiver>B9Layout</receiver>
+   <slot>showCatalog()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>799</x>
+     <y>400</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPrinter_Cycle_Settings</sender>
+   <signal>triggered()</signal>
+   <receiver>B9Layout</receiver>
+   <slot>showPrinterCycles()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>799</x>
+     <y>400</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCalibrate_Build_Table</sender>
+   <signal>triggered()</signal>
+   <receiver>B9Layout</receiver>
+   <slot>showCalibrateBuildTable()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>799</x>
+     <y>400</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCalibrate_Projector</sender>
+   <signal>triggered()</signal>
+   <receiver>B9Layout</receiver>
+   <slot>showCalibrateProjector()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>799</x>
+     <y>400</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionB9Creator_Terminal_Utility</sender>
+   <signal>triggered()</signal>
+   <receiver>B9Layout</receiver>
+   <slot>showTerminal()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>799</x>
+     <y>400</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_About_B9Creator</sender>
+   <signal>triggered()</signal>
+   <receiver>B9Layout</receiver>
+   <slot>showAbout()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>799</x>
+     <y>400</y>
     </hint>
    </hints>
   </connection>

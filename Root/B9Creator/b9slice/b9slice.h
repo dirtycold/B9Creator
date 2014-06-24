@@ -47,6 +47,8 @@ namespace Ui {
 class B9Slice;
 }
 
+class B9Layout;
+
 class B9Slice : public QMainWindow
 {
     Q_OBJECT
@@ -62,6 +64,7 @@ signals:
 
 public slots:
     void LoadLayout();
+    void loadDefault();
     void Slice();
 
 

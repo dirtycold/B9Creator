@@ -42,6 +42,15 @@
 #include <QtGui>
 #include "ui_b93dmain.h"
 #include "worldview.h"
+#include "helpsystem.h"
+#include "b9print.h"
+#include "b9edit.h"
+#include "b9slice.h"
+#include "b9updatemanager.h"
+#include "helpsystem.h"
+#include "logfilemanager.h"
+#include "b9terminal.h"
+#include "b9printermodelmanager.h"
 
 
 class B9LayoutProjectData;
@@ -50,6 +59,16 @@ class ModelData;
 class B9ModelInstance;
 class SliceDebugger;
 class B9SupportStructure;
+class B9Print;
+class B9Edit;
+class B9Slice;
+class B9UpdateManager;
+class HelpSystem;
+class LogFileManager;
+class CrushedPrintJob;
+class B9Terminal;
+class DlgPrintPrep;
+class b9PrinterModelManager;
 
 class B9Layout : public QMainWindow
 {
@@ -77,6 +96,7 @@ public slots:
     QString Open(bool withoutVisuals = false);
 	void Save();
 	void SaveAs();
+    void saveDefault();
 
 	//interface
     void OnChangeTab(int idx);
@@ -203,6 +223,7 @@ public slots:
 
 	//slicing
     bool SliceWorld();//prompts the user to slice to world to different formats.
+    bool SliceWorldDefault();
     bool SliceWorldToJob(QString filename);//slices to whole world to a job file
     bool SliceWorldToSlc(QString filename);//slices to whole world to a slc file
 	void CancelSlicing(); //connected to the progress bar to stop slicing.
@@ -249,6 +270,65 @@ private:
     void showEvent(QShowEvent *event);
     void closeEvent(QCloseEvent * event );
     void contextMenuEvent(QContextMenuEvent *event);
+
+    //imported
+public slots:
+    void showAbout();
+    void setSplash(QSplashScreen * splash){m_pSplash = splash;}
+    void showSplash();
+    void hideSplash(){if(m_pSplash!=NULL)m_pSplash->hide();}
+
+    void handleW4Hide();
+
+    void CheckForUpdates();
+    void OpenLayoutFile(QString file);
+    void OpenJobFile(QString file);
+
+    void showLogAndExit();
+    void showTerminal();
+    void showCalibrateBuildTable();
+    void showCalibrateProjector();
+    void showCatalog();
+    void showPrinterCycles();
+    void showLayout();
+    void showSlice();
+    void showEdit();
+    void showPrint();
+
+    void AttemptPrintDialogWithFile(QString openFile);
+
+    QString getSessionID();
+    QString generateSessionID();
+    void setSessionID(const QString &id);
+
+private slots:
+//    void on_commandLayout_clicked(bool checked);
+//    void on_commandSlice_clicked(bool checked);
+//    void on_commandEdit_clicked(bool checked);
+//    void on_commandPrint_clicked();
+    void showHelp();
+    void doPrint();
+
+private:
+//    void closeEvent ( QCloseEvent * event );
+//    Ui::MainWindow *ui;
+    LogFileManager *pLogManager;
+    bool m_bOpenLogOnExit;
+    HelpSystem m_HelpSystem;
+    B9UpdateManager *m_pUpdateManager;
+    QSplashScreen * m_pSplash;
+//    B9Layout *pMW1;
+    B9Slice *pMW2;
+    B9Edit *pMW3;
+    B9Print *pMW4;
+    CrushedPrintJob *m_pCPJ;
+    B9Terminal *pTerminal;
+    DlgPrintPrep* m_pPrintPrep;
+    b9PrinterModelManager* pPrinterModelManager;
+
+    QString sessionID;
+
+
 };
 
 #endif // B93D_H

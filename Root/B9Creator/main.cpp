@@ -43,16 +43,18 @@
 
 int main(int argc, char *argv[])
 {
-    B9NativeApp a(argc, argv);
-
+//    B9NativeApp a(argc, argv);
+    QApplication a(argc, argv);
     QPixmap pixmap(CROSS_OS_GetDirectoryFromLocationTag("APPLICATION_DIR")+"/"+"splash.png");
     QSplashScreen splash(pixmap,Qt::WindowStaysOnTopHint);
     //processEvents();
-    a.mainWindow->setSplash(&splash);
-    a.mainWindow->show();
-    a.mainWindow->showSplash();
+    B9Layout l;
+//    qDebug("%s",l.getSessionID().toStdString().c_str());
+    l.setSplash(&splash);
+    l.show();
+    l.showSplash();
 
-    a.ProccessArguments();
+//    a.ProccessArguments();
 
     return a.exec();
 }

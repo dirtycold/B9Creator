@@ -97,6 +97,20 @@ void B9Slice::LoadLayout()
 
 }
 
+void B9Slice::loadDefault()
+{
+//    currentLayout = pMain->Open(true);
+    currentLayout = pMain->getSessionID();
+    currentLayout.append(".b9l");
+    ui->CurrentLayout->setText(currentLayout);
+
+    ui->xypixelsize->setText(QString().number(pMain->ProjectData()->GetPixelSize()));
+    ui->imgsize->setText(QString().number(pMain->ProjectData()->GetResolution().x()) + ","
+                         + QString().number(pMain->ProjectData()->GetResolution().y()));
+
+    ui->jobname->setText(QFileInfo(currentLayout).baseName());
+}
+
 
 void B9Slice::Slice(){
 
@@ -123,7 +137,8 @@ void B9Slice::Slice(){
     s.endGroup();
 
 
-    pMain->SliceWorld();
+//    pMain->SliceWorld();
+    pMain->SliceWorldDefault();
 
 }
 
@@ -139,26 +154,26 @@ void B9Slice::hideEvent(QHideEvent *event)
 
     emit eventHiding();
 
-    pMain->New();
-    currentLayout = "";
-    ui->CurrentLayout->setText(currentLayout);
-    ui->jobdesc->setText("");
-    ui->jobname->setText("");
-    ui->xypixelsize->setText("");
-    ui->imgsize->setText("");
+//    pMain->New();
+//    currentLayout = "";
+//    ui->CurrentLayout->setText(currentLayout);
+//    ui->jobdesc->setText("");
+//    ui->jobname->setText("");
+//    ui->xypixelsize->setText("");
+//    ui->imgsize->setText("");
 
     event->accept();
 }
 void B9Slice::showEvent(QHideEvent *event)
 {
 
-    pMain->New();
-    currentLayout = "";
-    ui->CurrentLayout->setText(currentLayout);
-    ui->jobdesc->setText("");
-    ui->jobname->setText("");
-    ui->xypixelsize->setText("");
-    ui->imgsize->setText("");
+//    pMain->New();
+//    currentLayout = "";
+//    ui->CurrentLayout->setText(currentLayout);
+//    ui->jobdesc->setText("");
+//    ui->jobname->setText("");
+//    ui->xypixelsize->setText("");
+//    ui->imgsize->setText("");
 
     event->accept();
 }

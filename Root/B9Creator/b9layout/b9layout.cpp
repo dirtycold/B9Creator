@@ -54,6 +54,15 @@
 #include "b9supportstructure.h"
 #include "OS_Wrapper_Functions.h"
 #include "b9modelwriter.h"
+#include "dlgcalbuildtable.h"
+#include "dlgcalprojector.h"
+#include "dlgprintprep.h"
+
+class dlgCalBuildTable;
+class dlgCalProjector;
+
+
+#define B9CVERSION "Version 1.6.0     Copyright 2013 B9Creations, LLC     www.b9creator.com\n "
 
 //////////////////////////////////////////////////////
 //Public
@@ -91,7 +100,67 @@ B9Layout::B9Layout(QWidget *parent, Qt::WFlags flags) : QMainWindow(parent, flag
 
     New();
 
-    UpdateInterface();
+    // Set up Identity
+    QCoreApplication::setOrganizationName("B9Creations, LLC");
+    QCoreApplication::setOrganizationDomain("b9creator.com");
+    QCoreApplication::setApplicationName("B9Creator");
+
+//    ui->setupUi(this);
+//    this->setWindowFlags(Qt::MSWindowsFixedSizeDialogHint);
+
+    // Always set up the log manager in the MainWindow constructor
+    pLogManager = new LogFileManager(CROSS_OS_GetDirectoryFromLocationTag("DOCUMENTS_DIR") + "/B9Creator_LOG.txt", "B9Creator Log Entries");
+    m_bOpenLogOnExit = false;
+    qDebug() << "Program Start";
+    qDebug() << "Relevent Used Application Directories";
+    qDebug() << "   EXECUTABLE_DIR: " << CROSS_OS_GetDirectoryFromLocationTag("EXECUTABLE_DIR");
+    qDebug() << "   APPLICATION_DIR: " << CROSS_OS_GetDirectoryFromLocationTag("APPLICATION_DIR");
+    qDebug() << "   TEMP_DIR: " << CROSS_OS_GetDirectoryFromLocationTag("TEMP_DIR");
+    qDebug() << "   DOCUMENTS_DIR: " << CROSS_OS_GetDirectoryFromLocationTag("DOCUMENTS_DIR");
+
+
+    //create update manager.
+    m_pUpdateManager = new B9UpdateManager(this);
+
+    //do things like move, delete old files from previous
+    //installations
+    m_pUpdateManager->TransitionFromPreviousVersions();
+
+    //Schedule an auto update check
+    QTimer::singleShot(1000,m_pUpdateManager,SLOT(AutoCheckForUpdates()));
+
+
+    //create Printer Model Manager, withough importing definitions - it will start with a default printer
+    pPrinterModelManager = new b9PrinterModelManager(this);
+    //pPrinterModelManager->ImportDefinitions(CROSS_OS_SPOT + "/B9Printer.DEF")
+    //pPrinterModelManager->ImportMaterials();//looks at mat file and user registry.
+
+    //import premade stls for support structures
+    B9SupportStructure::ImportAttachmentDataFromStls();
+    B9SupportStructure::FillRegistryDefaults();//if needed
+
+    //create terminal
+    pTerminal = new B9Terminal(QApplication::desktop());
+    pTerminal->setEnabled(true);
+
+    connect(pTerminal, SIGNAL(updateConnectionStatus(QString)), ui.statusbar, SLOT(showMessage(QString)));
+
+    ui.statusbar->showMessage(MSG_SEARCHING);
+
+//    pMW1 = new B9Layout(0);
+    pMW2 = new B9Slice(this,this);
+    pMW3 = new B9Edit(this);
+    pMW4 = new B9Print(pTerminal, this);
+
+    m_pCPJ = new CrushedPrintJob;
+
+//    connect(pMW1, SIGNAL(eventHiding()),this, SLOT(handleW1Hide()));
+//    connect(pMW2, SIGNAL(eventHiding()),this, SLOT(handleW2Hide()));
+//    connect(pMW3, SIGNAL(eventHiding()),this, SLOT(handleW3Hide()));
+    connect(pMW4, SIGNAL(eventHiding()),this, SLOT(handleW4Hide()));
+
+    // already did in New();
+//    UpdateInterface();
 }
 
 B9Layout::~B9Layout()
@@ -270,6 +339,11 @@ void B9Layout::SaveAs()
     settings.setValue("WorkingDir",QFileInfo(filename).absolutePath());
 }
 
+void B9Layout::saveDefault()
+{
+    project->Save(getSessionID());
+}
+
 //interface
 void B9Layout::OnChangeTab(int idx)
 {
@@ -414,6 +488,10 @@ void B9Layout::BuildInterface()
     ui.fileToolBar->addAction(ui.actionNew_Project);
     ui.fileToolBar->addAction(ui.actionOpen_Project);
     ui.fileToolBar->addAction(ui.actionSave);
+
+    ui.projectToolBar->addAction(ui.actionAdd_Model);
+    ui.projectToolBar->addAction(ui.actionSlice);
+    ui.projectToolBar->addAction(ui.actionPrint);
 
     ui.modelToolBar->addAction(ui.actionSelection);
     ui.modelToolBar->addAction(ui.actionMove);
@@ -2241,6 +2319,57 @@ bool B9Layout::SliceWorld()
     return false;
 }
 
+bool B9Layout::SliceWorldDefault()
+{
+    QSettings settings;
+
+//    QString filename = CROSS_OS_GetSaveFileName(this, tr("Export Slices"),
+//                                                settings.value("WorkingDir").toString() + "/" + ProjectData()->GetJobName(),
+//                                                tr("B9 Job (*.b9j);;SLC (*.slc)"));
+
+    QString filename = getSessionID();
+
+    if(filename.isEmpty())//cancell button
+    {
+        return false;
+    }
+
+    filename.append(".b9j");
+
+    QString Format = QFileInfo(filename).completeSuffix();
+    settings.setValue("WorkingDir",QFileInfo(filename).absolutePath());
+
+    if(Format.toLower() == "b9j")
+    {
+        if(SliceWorldToJob(filename))
+        {
+             QMessageBox::information(0,"Finished","Slicing Completed\n\nAll layers sliced and job file saved.");
+             return true;
+        }
+        else
+        {
+            QMessageBox::information(0,"Canceled","Slicing Canceled\n\nnothing was saved.");
+            return false;
+        }
+    }
+    else if(Format.toLower() == "slc")
+    {
+        if(SliceWorldToSlc(filename))
+        {
+            QMessageBox::information(0,"Finished","Slicing Completed\n\nAll layers sliced and slc file saved.");
+            return true;
+
+        }
+        else
+        {
+            QMessageBox::information(0,"Cancelled","Slicing Cancelled\n\nnothing was saved.");
+            return false;
+        }
+    }
+
+    return false;
+}
+
 //slicing to a job file!
 bool B9Layout::SliceWorldToJob(QString filename)
 {
@@ -2580,6 +2709,11 @@ void B9Layout::showEvent(QShowEvent *event)
 void B9Layout::closeEvent ( QCloseEvent * event )
 {
 
+    pMW2->hide();
+    pMW3->hide();
+    pMW4->hide();
+    pTerminal->hide();
+
     //if the layout is dirty - ask the user if they want to save.
     if(project->IsDirtied())
     {
@@ -2610,7 +2744,10 @@ void B9Layout::closeEvent ( QCloseEvent * event )
 
     //when we close the window - we want to make a new project.
     //because we might open the window again and we want a fresh start.
-    New();
+
+    // not true;
+    // New();
+
     event->accept();
 
 }
@@ -2627,4 +2764,197 @@ void B9Layout::contextMenuEvent(QContextMenuEvent *event)
 
         menu.exec(event->globalPos());
     */
+}
+
+void B9Layout::showAbout()
+{
+    if(m_pSplash!=NULL){
+        m_pSplash->showMessage(B9CVERSION,Qt::AlignBottom|Qt::AlignCenter,QColor(255,130,36));
+        m_pSplash->show();
+    }
+}
+
+void B9Layout::showSplash()
+{
+    if(m_pSplash!=NULL){
+        m_pSplash->showMessage(B9CVERSION,Qt::AlignBottom|Qt::AlignCenter,QColor(255,130,36));
+        m_pSplash->show();
+        QTimer::singleShot(1000,this,SLOT(hideSplash()));
+    }
+}
+
+void B9Layout::handleW4Hide()
+{
+//    ui->commandPrint->setChecked(false);
+    pLogManager->setPrinting(false);
+    pTerminal->setIsPrinting(false);
+    CROSS_OS_DisableSleeps(false);// return system screensavers back to normal.
+}
+
+void B9Layout::CheckForUpdates()
+{
+    m_pUpdateManager->PromptDoUpdates();
+}
+
+void B9Layout::OpenLayoutFile(QString file)
+{
+    this->ProjectData()->Open(file);
+}
+
+void B9Layout::OpenJobFile(QString file)
+{
+    AttemptPrintDialogWithFile(file);
+}
+
+void B9Layout::showLogAndExit()
+{
+    m_bOpenLogOnExit = true;
+    emit(this->close());
+}
+
+void B9Layout::showTerminal()
+{
+    pTerminal->showIt();
+}
+
+void B9Layout::showCalibrateBuildTable()
+{
+    if(!pTerminal->isConnected()){
+        QMessageBox::information(this,"Printer Not Found", "You must be connected to the printer to Calibrate",QMessageBox::Ok);
+        return;
+    }
+
+    dlgCalBuildTable dlgCalBT(pTerminal);
+    dlgCalBT.exec();
+}
+
+void B9Layout::showCalibrateProjector()
+{
+    if(!pTerminal->isConnected()){
+        QMessageBox::information(this,"Printer Not Found", "You must be connected to the printer to Calibrate",QMessageBox::Ok);
+        return;
+    }
+
+    dlgCalProjector dlgCalProj(pTerminal);
+    dlgCalProj.exec();
+}
+
+void B9Layout::showCatalog()
+{
+    pTerminal->dlgEditMatCat();
+}
+
+void B9Layout::showPrinterCycles()
+{
+    pTerminal->dlgEditPrinterCycleSettings();
+}
+
+void B9Layout::showLayout()
+{
+    // don't be too boring
+    this->show();
+}
+
+void B9Layout::showSlice()
+{
+    saveDefault();
+    pMW2->show();
+    pMW2->loadDefault();
+}
+
+void B9Layout::showEdit()
+{
+
+}
+
+void B9Layout::showPrint()
+{
+    QString filename = getSessionID();
+    filename.append(".b9j");
+    if (!QFileInfo(filename).exists())
+        return;
+    AttemptPrintDialogWithFile(filename);
+}
+
+void B9Layout::AttemptPrintDialogWithFile(QString openFile)
+{
+    /////////////////////////////////////////////////
+    // Open the .b9j file
+    m_pCPJ->clearAll();
+
+    QFile file(openFile);
+    if(!m_pCPJ->loadCPJ(&file)) {
+        QMessageBox msgBox;
+        msgBox.setText("Error Loading File.  Unknown Version?");
+        msgBox.exec();
+        return;
+    }
+    m_pCPJ->showSupports(true);
+    int iXYPixelMicrons = m_pCPJ->getXYPixelmm()*1000;
+    if( pTerminal->isConnected()&& iXYPixelMicrons != (int)pTerminal->getXYPixelSize()){
+        QMessageBox msgBox;
+        msgBox.setText("WARNING");
+        msgBox.setInformativeText("The XY pixel size of the selected job file ("+QString::number(iXYPixelMicrons)+" µm) does not agree with the Printer's calibrated XY pixel size ("+QString::number(pTerminal->getXYPixelSize())+" µm)!\n\n"
+                                  "Printing will likely result in an object with incorrect scale and/or apsect ratio.\n\n"
+                                  "Do you wish to continue?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::No);
+        int ret = msgBox.exec();
+        if(ret==QMessageBox::No)return;
+    }
+
+
+    m_pPrintPrep = new DlgPrintPrep(m_pCPJ, pTerminal, this);
+    connect (m_pPrintPrep, SIGNAL(accepted()),this,SLOT(doPrint()));
+    m_pPrintPrep->exec();
+}
+
+QString B9Layout::getSessionID()
+{
+    if (sessionID.isEmpty())
+        sessionID = generateSessionID();
+    return sessionID;
+}
+
+QString B9Layout::generateSessionID()
+{
+    static const char alphanum[] =
+            "0123456789"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    // avoid uncaped letters
+//                "abcdefghijklmnopqrstuvwxyz";
+
+    const unsigned int len = 8;
+    QString s;
+
+    for (unsigned int i = 0; i < len; ++i) {
+        s.append(alphanum[rand() % (sizeof(alphanum) - 1)]);
+    }
+
+//    s[len] = 0;
+    return s;
+}
+
+void B9Layout::setSessionID(const QString &id)
+{
+    sessionID = id;
+}
+
+void B9Layout::showHelp()
+{
+    m_HelpSystem.showHelpFile("index.html");
+}
+
+void B9Layout::doPrint()
+{
+    // print using variables set by wizard...
+    this->hide(); // Comment this out if not hiding mainwindow while showing this window
+    pMW4->show();
+    pLogManager->setPrinting(false); // set to true to Stop logfile entries when printing
+    pTerminal->setIsPrinting(true);
+    CROSS_OS_DisableSleeps(true);//disable things like screen saver - and power options.
+    pMW4->print3D(m_pCPJ, 0, 0, m_pPrintPrep->m_iTbaseMS, m_pPrintPrep->m_iToverMS, m_pPrintPrep->m_iTattachMS, m_pPrintPrep->m_iNumAttach, m_pPrintPrep->m_iLastLayer, m_pPrintPrep->m_bDryRun, m_pPrintPrep->m_bDryRun, m_pPrintPrep->m_bMirrored);
+
+    return;
 }
